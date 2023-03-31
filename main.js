@@ -102,12 +102,45 @@ export default class Sketch{
             z: 0.4
         }
         const cameraFolder = this.pane.addFolder({
-            title: 'Record',
+            title: 'Camera',
             expanded: true,
         });
         cameraFolder.addInput(this.PARAMS_CAMERA, 'x',{min: -5, max: 5, step:0.01})
         cameraFolder.addInput(this.PARAMS_CAMERA, 'y',{min: -5, max: 5, step:0.01})
         cameraFolder.addInput(this.PARAMS_CAMERA, 'z',{min: -5, max: 5, step:0.01})
+
+
+        this.PARAMS_SHAPE = {
+            coord: {x: 6, y: 10},
+            tilt: -2.8,
+            incline: 2.5,
+            offset: {x: -0.25, y: 0.25 },
+            noise: 0.04,
+            noiseFlow: 2.2,
+            noiseFlowRatio: 0.4,
+            noiseSpeed: 1.6,
+            noiseSpeedRatio: 0.3,
+            noiseSeed: 13,
+            noiseSeedRatio: 20,
+            noiseFreq: {x: 1, y: 1.2},
+            noiseFloor: 0.17,
+            noiseCeil: 0.6,
+            noiseCeilRatio: 0.07
+        }
+        const shapeFolder = this.pane.addFolder({
+            title: 'Shape',
+            expanded: true,
+        });
+        for (const [key, value] of Object.entries(this.PARAMS_SHAPE)) {
+            shapeFolder.addInput(this.PARAMS_SHAPE, `${key}`)
+            // console.log(`${key}: ${value}`);
+        }
+
+
+        // this.PARAMS_SHAPE.forEach(element => {
+        //     shapeFolder.addInput(this.PARAMS_SHAPE, element)
+        // });
+
 
         this.PARAMS_EXPORT = {
             frameRate: 25,
@@ -195,7 +228,22 @@ export default class Sketch{
                 uImg: {value: this.texture},
                 uTime: {value: 0},
                 uColor: {value: palette},
-                uMouseSpeed: {value: this.mouseSpeed}
+                uMouseSpeed: {value: this.mouseSpeed},
+                uCoord: {value: {x: 0, y: 0}},
+                uTilt: {value: 0},
+                uIncline: {value: 0},
+                uOffset: {value: {x: 0, y: 0}},
+                uNoise: {value: 0},
+                uNoiseFlow: {value: 0},
+                uNoiseFlowRatio: {value: 0},
+                uNoiseSpeed: {value: 0},
+                uNoiseSpeedRatio: {value: 0},
+                uNoiseSeed: {value: 0},
+                uNoiseSeedRatio: {value: 0},
+                uNoiseFreq: {value: {x: 0, y: 0}},
+                uNoiseFloor: {value: 0},
+                uNoiseCeil: {value: 0},
+                uNoiseCeilRatio: {value: 0},
                 // uSize: {value: 6.0},
                 // uScale: {value: 0}
             },
@@ -231,6 +279,25 @@ export default class Sketch{
 	    // this.scene.rotation.y = this.time / 1000;
         this.material.uniforms.uTime.value = this.time*0.001;
         this.material.uniforms.uMouseSpeed.value = this.mouseSpeed;
+
+        this.material.uniforms.uCoord.value = this.PARAMS_SHAPE.coord;
+        this.material.uniforms.uTilt.value = this.PARAMS_SHAPE.tilt;
+        this.material.uniforms.uIncline.value = this.PARAMS_SHAPE.incline;
+        this.material.uniforms.uOffset.value = this.PARAMS_SHAPE.offset;
+        this.material.uniforms.uNoise.value = this.PARAMS_SHAPE.noise;
+        this.material.uniforms.uNoiseFlow.value = this.PARAMS_SHAPE.noiseFlow;
+        this.material.uniforms.uNoiseFlowRatio.value = this.PARAMS_SHAPE.noiseFlowRatio;
+        this.material.uniforms.uNoiseSpeed.value = this.PARAMS_SHAPE.noiseSpeed;
+        this.material.uniforms.uNoiseSpeedRatio.value = this.PARAMS_SHAPE.noiseSpeedRatio;
+        this.material.uniforms.uNoiseSeed.value = this.PARAMS_SHAPE.noiseSeed;
+        this.material.uniforms.uNoiseSeedRatio.value = this.PARAMS_SHAPE.noiseSeedRatio;
+        this.material.uniforms.uNoiseFreq.value = this.PARAMS_SHAPE.noiseFreq;
+        this.material.uniforms.uNoiseFloor.value = this.PARAMS_SHAPE.noiseFloor;
+        this.material.uniforms.uNoiseCeil.value = this.PARAMS_SHAPE.noiseCeil;
+        this.material.uniforms.uNoiseCeilRatio.value = this.PARAMS_SHAPE.noiseCeilRatio;
+
+
+
         // this.control.update();
         this.renderer.render( this.scene, this.camera );
         console.log(this.mouseSpeed)

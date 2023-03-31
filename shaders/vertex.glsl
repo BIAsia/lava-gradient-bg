@@ -6,6 +6,22 @@ uniform float uTime;
 uniform vec3 uColor[4];
 uniform float uMouseSpeed;
 
+uniform vec2 uCoord;
+uniform float uTilt;
+uniform float uIncline;
+uniform vec2 uOffset;
+uniform float uNoise;
+uniform float uNoiseFlow;
+uniform float uNoiseFlowRatio;
+uniform float uNoiseSpeed;
+uniform float uNoiseSpeedRatio;
+uniform float uNoiseSeed;
+uniform float uNoiseSeedRatio;
+uniform vec2 uNoiseFreq;
+uniform float uNoiseFloor;
+uniform float uNoiseCeil;
+uniform float uNoiseCeilRatio;
+
 //	Simplex 3D Noise 
 //	by Ian McEwan, Ashima Arts
 //
@@ -86,30 +102,33 @@ float snoise(vec3 v){
 void main() {
 
   // noise
-  vec2 noiseCoord = uv*vec2(6.6+uMouseSpeed*0.0005, 50.);
+  vec2 noiseCoord = uv*vec2(uCoord.x+uMouseSpeed*0.0005, uCoord.y);
   float noise = snoise(vec3(noiseCoord.x + uTime*0.4, noiseCoord.y + uTime*0.4, uTime));
   noise = max(0., noise);
 
-  float tilt = -2.8*uv.y;
-  float incline = uv.x*2.5;
-  float offset = incline*mix(-.25, .25, uv.y);
+  float noiseb = snoise(vec3(noiseCoord.x + uTime*0.4, noiseCoord.y + uTime*0.4, uTime));
+  noiseb = max(0., noiseb);
 
-  vPosition = vec3(position.x, position.y, position.z + noise*0.04 + offset);
+  float tilt = uTilt*uv.y;
+  float incline = uv.x*uIncline;
+  float offset = incline*mix(uOffset.x, uOffset.y, uv.y);
+
+  vPosition = vec3(position.x, position.y, position.z + noise*uNoise + noiseb*uNoise + offset);
   vUV = uv;
   vNormal = normal;
   vNormal = normalize(normal*normalMatrix);
 
   vColor = uColor[0];
-  for(int i = 0; i < 4; i++){
+  for(int i = 0; i < 10; i++){
 
-    float noiseFlow = 2.2 + float(i)*0.4; // move speed
-    float noiseSpeed = 1.6 + float(i)*0.3; // flesh speed
+    float noiseFlow = uNoiseFlow + float(i)*uNoiseFlowRatio; // move speed
+    float noiseSpeed = uNoiseSpeed + float(i)*uNoiseSpeedRatio; // flesh speed
 
-    float noiseSeed = 13. + float(i)*20.;
-    vec2 noiseFreq = vec2(1., 1.2)*0.5; 
+    float noiseSeed = uNoiseSeed + float(i)*uNoiseSeedRatio;
+    vec2 noiseFreq = vec2(uNoiseFreq.x, uNoiseFreq.y)*0.5; 
 
-    float noiseFloor = 0.17;
-    float noiseCeil = 0.6 + float(i)*0.07;
+    float noiseFloor = uNoiseFloor;
+    float noiseCeil = uNoiseCeil + float(i)*uNoiseCeilRatio;
 
     float noise = smoothstep(noiseFloor, noiseCeil, snoise(vec3(
       noiseCoord.x*noiseFreq.x + uTime*noiseFlow,
