@@ -4,6 +4,7 @@ varying vec3 vNormal;
 varying vec3 vColor;
 uniform float uTime;
 uniform vec3 uColor[4];
+uniform float uMouseSpeed;
 
 //	Simplex 3D Noise 
 //	by Ian McEwan, Ashima Arts
@@ -85,15 +86,15 @@ float snoise(vec3 v){
 void main() {
 
   // noise
-  vec2 noiseCoord = uv*vec2(18.6, 10.);
-  float noise = snoise(vec3(noiseCoord.x + uTime*0.6, noiseCoord.y + uTime*0.4, uTime));
+  vec2 noiseCoord = uv*vec2(6.6+uMouseSpeed*0.0005, 50.);
+  float noise = snoise(vec3(noiseCoord.x + uTime*0.4, noiseCoord.y + uTime*0.4, uTime));
   noise = max(0., noise);
 
-  float tilt = -1.8*uv.y;
-  float incline = uv.x*1.5;
+  float tilt = -2.8*uv.y;
+  float incline = uv.x*2.5;
   float offset = incline*mix(-.25, .25, uv.y);
 
-  vPosition = vec3(position.x, position.y, position.z + noise*0.03 + offset);
+  vPosition = vec3(position.x, position.y, position.z + noise*0.04 + offset);
   vUV = uv;
   vNormal = normal;
   vNormal = normalize(normal*normalMatrix);
@@ -101,14 +102,14 @@ void main() {
   vColor = uColor[0];
   for(int i = 0; i < 4; i++){
 
-    float noiseFlow = 1.2 + float(i)*0.4; // move speed
-    float noiseSpeed = .6 + float(i)*0.3; // flesh speed
+    float noiseFlow = 2.2 + float(i)*0.4; // move speed
+    float noiseSpeed = 1.6 + float(i)*0.3; // flesh speed
 
     float noiseSeed = 13. + float(i)*20.;
-    vec2 noiseFreq = vec2(1., 1.2)*2.2; 
+    vec2 noiseFreq = vec2(1., 1.2)*0.5; 
 
-    float noiseFloor = 0.07;
-    float noiseCeil = 0.4 + float(i)*0.07;
+    float noiseFloor = 0.17;
+    float noiseCeil = 0.6 + float(i)*0.07;
 
     float noise = smoothstep(noiseFloor, noiseCeil, snoise(vec3(
       noiseCoord.x*noiseFreq.x + uTime*noiseFlow,

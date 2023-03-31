@@ -37,22 +37,26 @@ export default class Sketch{
         this.camera = new THREE.PerspectiveCamera(
             70, 
             window.innerWidth / window.innerHeight, 
-            0.001, 
-            1000
+            0.01, 
+            200
         );
 
         // this.isometricFill();
-        this.camera.position.y = -0.05;
-        this.camera.position.z = 0.08;
+        // this.camera.position.y = -0.29;
+        this.camera.position.z = 0.1;
+        this.camera.position.x = 0.1;
 
         this.scene = new THREE.Scene();
-        this.control = new OrbitControls(this.camera, this.renderer.domElement)
+        // this.control = new OrbitControls(this.camera, this.renderer.domElement)
         this.time = 0;
         this.mouse = 0;
+        this.mouseX = 0;
+        this.mouseY = 0;
+        this.mouseSpeed = 0;
 
         this.addMesh();
         this.settings();
-        // this.mouseEvent();
+        this.mouseEvent();
         this.resize();
         // this.addPost();
         this.render();
@@ -91,6 +95,19 @@ export default class Sketch{
             if (this.PARAMS.dark) this.material.uniforms.uColor.value = paletteDark;
             else this.material.uniforms.uColor.value = paletteLight;
         })
+
+        this.PARAMS_CAMERA = {
+            x: 0.52,
+            y: 0.03,
+            z: 0.4
+        }
+        const cameraFolder = this.pane.addFolder({
+            title: 'Record',
+            expanded: true,
+        });
+        cameraFolder.addInput(this.PARAMS_CAMERA, 'x',{min: -5, max: 5, step:0.01})
+        cameraFolder.addInput(this.PARAMS_CAMERA, 'y',{min: -5, max: 5, step:0.01})
+        cameraFolder.addInput(this.PARAMS_CAMERA, 'z',{min: -5, max: 5, step:0.01})
 
         this.PARAMS_EXPORT = {
             frameRate: 25,
@@ -147,7 +164,15 @@ export default class Sketch{
     }
 
     mouseEvent(){
+        let lastX = 0, lastY = 0;
+        this.mouseSpeed = 0;
         document.addEventListener('mousemove', (e)=>{
+            this.mouseSpeed = e.pageX - e.pageY;
+            // this.mouseSpeed = .05*Math.sqrt((e.pageX - lastX)**2 + (e.pageY - lastY)**2)
+            this.mouseX = (e.pageX-this.width/2)*.001;
+            this.mouseY = (e.pageY-this.height/2)*.001;
+            lastX = e.pageX;
+            lastY = e.pageY;
             // mousemove
         })
     }
@@ -169,7 +194,8 @@ export default class Sketch{
                 uProgress: {value: 0},
                 uImg: {value: this.texture},
                 uTime: {value: 0},
-                uColor: {value: palette}
+                uColor: {value: palette},
+                uMouseSpeed: {value: this.mouseSpeed}
                 // uSize: {value: 6.0},
                 // uScale: {value: 0}
             },
@@ -197,13 +223,17 @@ export default class Sketch{
 
     render(){
         this.time++;
+        this.camera.position.x = this.PARAMS_CAMERA.x;
+        this.camera.position.y = this.PARAMS_CAMERA.y;
+        this.camera.position.z = this.PARAMS_CAMERA.z;
         
-        // this.scene.rotation.x = this.time / 2000;
+        this.scene.rotation.z = -9;
 	    // this.scene.rotation.y = this.time / 1000;
         this.material.uniforms.uTime.value = this.time*0.001;
-        this.control.update();
+        this.material.uniforms.uMouseSpeed.value = this.mouseSpeed;
+        // this.control.update();
         this.renderer.render( this.scene, this.camera );
-        
+        console.log(this.mouseSpeed)
         window.requestAnimationFrame(this.render.bind(this))
         if (this.onCapture) this.capturer.capture(this.renderer.domElement);
     }
